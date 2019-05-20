@@ -1,0 +1,7 @@
+# YomCalendar document generator jazzy settings
+
+copyright: Copyright 2019 Yom
+author: Guillaume Bellue
+xcodebuild_arguments: [-target, YomCalendar-iOS]
+clean: true
+output: ./Documentation
