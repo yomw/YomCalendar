@@ -9,8 +9,6 @@ end
 target 'YomCalendar-iOS' do
   use_frameworks!
 
-  pod 'SwiftDate'
-
   target 'YomCalendar-iOSTests' do
     inherit! :search_paths
   end

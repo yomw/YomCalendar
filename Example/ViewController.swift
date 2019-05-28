@@ -13,7 +13,10 @@ import YomCalendar
 
 /// The ViewController
 class ViewController: UIViewController {
-    let calendar = YomCalendar()
+    let calendar = YomCalendar() {
+        $0.minimumDate = Date()
+        $0.maximumDate = Date(timeIntervalSinceNow: 60 * 60 * 24 * 50)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

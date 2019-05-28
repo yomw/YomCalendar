@@ -6,7 +6,6 @@
 //  Copyright © 2019 Yom. All rights reserved.
 //
 
-import SwiftDate
 import UIKit
 
 class YomCalendarHourPicker: UIControl {
@@ -30,6 +29,8 @@ class YomCalendarHourPicker: UIControl {
     private var datePicker: NSLayoutConstraint!
     private var mode: Mode { didSet { updateMode() } }
 
+    var configuration = YomCalendar.Configuration.default
+
     init() {
         mode = .folded
         super.init(frame: .zero)
@@ -43,7 +44,8 @@ class YomCalendarHourPicker: UIControl {
         updateMode(animated: false)
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        selectedDate = DateInRegion(formatter.string(from: Date()))!.date
+        selectedDate = Date()
+//        selectedDate = DateInRegion(formatter.string(from: Date()))!.date
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -97,24 +99,26 @@ class YomCalendarHourPicker: UIControl {
     }
 
     private func capDate(_ date: Date) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "YYYY-MM-dd HH:mm:ss"
-        let maxDate = formatter.string(from: Date()).toDate()!.date + 24.years
-        return date.earlierDate(maxDate)
+        if date < configuration.maximumDate {
+            if date > configuration.minimumDate {
+                return date
+            }
+            return configuration.minimumDate
+        }
+        return configuration.maximumDate
     }
 }
 
 extension YomCalendarHourPicker {
     private func buildDate() {
         let container = UIView()
+        container.backgroundColor = configuration.colorConfiguration.dateTimeBackground
 
-        let background = GradientView()
-        background.startColor = UIColor(hexString: "5F49FF")
-        background.endColor = UIColor(hexString: "7934FF")
-        background.horizontalMode = true
+        let topLine = UIView()
+        topLine.backgroundColor = configuration.colorConfiguration.dateTimeLines
 
-        dateLabel.textColor = .white
-        dateLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        dateLabel.textColor = configuration.colorConfiguration.dateTimeText
+        dateLabel.font = configuration.fontConfiguration.dateTimeFont
 
         let toggler = UIButton(type: .custom)
         toggler.addTarget(self, action: #selector(togglePicker), for: .touchUpInside)
@@ -122,20 +126,24 @@ extension YomCalendarHourPicker {
         let validate = UIButton(type: .system)
         validate.backgroundColor = UIColor.white
         validate.setImage(UIImage(named: "next-white"), for: .normal)
-        validate.tintColor = Colors.purple
+        validate.tintColor = configuration.colorConfiguration.selectionBackground
         validate.layer.cornerRadius = 15
         validate.imageEdgeInsets = UIEdgeInsets(top: 0, left: 1, bottom: 0, right: 0)
         validate.addTarget(self, action: #selector(send), for: .touchUpInside)
 
-        [container, background, dateLabel, toggler, validate]
+        [container, topLine, dateLabel, toggler, validate]
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-        container.addSubview(background, withInsets: .zero)
+        container.addSubview(topLine)
         container.addSubview(dateLabel)
         container.addSubview(toggler, withInsets: .zero)
         container.addSubview(validate)
         addSubview(container)
 
         NSLayoutConstraint.activate([
+            topLine.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            topLine.topAnchor.constraint(equalTo: container.topAnchor),
+            topLine.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            topLine.heightAnchor.constraint(equalToConstant: 0.5),
             dateLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 20),
             dateLabel.topAnchor.constraint(equalTo: container.topAnchor),
             dateLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20),
@@ -161,16 +169,25 @@ extension YomCalendarHourPicker {
     private func buildPicker() {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.backgroundColor = .white
+        container.backgroundColor = configuration.colorConfiguration.background
         container.clipsToBounds = true
+
+        let topLine = UIView()
+        topLine.backgroundColor = configuration.colorConfiguration.dateTimeLines
+        topLine.translatesAutoresizingMaskIntoConstraints = false
 
         picker.delegate = self
         picker.dataSource = self
         picker.translatesAutoresizingMaskIntoConstraints = false
 
+        container.addSubview(topLine)
         container.addSubview(picker)
         addSubview(container)
         NSLayoutConstraint.activate([
+            topLine.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            topLine.topAnchor.constraint(equalTo: container.topAnchor),
+            topLine.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            topLine.heightAnchor.constraint(equalToConstant: 0.5),
             picker.heightAnchor.constraint(equalToConstant: 230),
             picker.widthAnchor.constraint(equalToConstant: 120),
             picker.centerXAnchor.constraint(equalTo: container.centerXAnchor),
@@ -191,7 +208,7 @@ extension YomCalendarHourPicker {
             view.isHidden = true
 
             let line = UIView()
-            line.backgroundColor = .lightGray
+            line.backgroundColor = configuration.colorConfiguration.dateTimeLines
             line.translatesAutoresizingMaskIntoConstraints = false
             superview.addSubview(line)
             NSLayoutConstraint.activate([
@@ -205,8 +222,8 @@ extension YomCalendarHourPicker {
 
 extension YomCalendarHourPicker {
     func setPickerTime(date: Date, animated: Bool = true) {
-        let hour = date.hour
-        let minute = date.minute
+        let hour = date.hours
+        let minute = date.minutes
 
         picker.selectRow(hour, inComponent: 0, animated: animated)
         picker.selectRow(minute, inComponent: 1, animated: animated)
@@ -215,7 +232,7 @@ extension YomCalendarHourPicker {
 
     func setDateDisplayed(date: Date) {
         let formatter = DateFormatter()
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale.preferredLocale
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         let day = formatter.string(from: date)
@@ -225,7 +242,7 @@ extension YomCalendarHourPicker {
         let text = "\(day) \(time)"// L10n.Calendar.resume(day, time)
         let attributedString = NSMutableAttributedString(string: text)
         let range = (text as NSString).range(of: time)
-        attributedString.addAttribute(.underlineStyle, value: NSUnderlineStyle.thick.rawValue, range: range)
+        attributedString.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
         dateLabel.attributedText = attributedString
         setPickerTime(date: date, animated: false)
     }
@@ -252,16 +269,16 @@ extension YomCalendarHourPicker: UIPickerViewDelegate, UIPickerViewDataSource {
             lbl = label
         } else {
             lbl = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 40))
-            lbl.font = Font.defaultFont(withSize: 20)
+            lbl.font = configuration.fontConfiguration.pickerFont
             lbl.textAlignment = .center
         }
 
         let formatter = NumberFormatter()
         formatter.minimumIntegerDigits = 2
         lbl.text = formatter.string(from: row as NSNumber)
-        lbl.textColor = Colors.Text.month
+        lbl.textColor = configuration.colorConfiguration.dayText
         if pickerView.selectedRow(inComponent: component) == row {
-            lbl.textColor = Colors.purple
+            lbl.textColor = configuration.colorConfiguration.selectionBackground
         }
 
         return lbl
@@ -272,7 +289,7 @@ extension YomCalendarHourPicker: UIPickerViewDelegate, UIPickerViewDataSource {
         let hour = pickerView.selectedRow(inComponent: 0)
         let minute = pickerView.selectedRow(inComponent: 1)
 
-        let truncated = selectedDate.dateTruncated(from: .hour)!
+        let truncated = selectedDate.truncated(from: .hour)!
         let date = truncated + hour.hours + minute.minutes
 
         selectedDate = capDate(date)

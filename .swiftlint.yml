@@ -13,5 +13,4 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Tests
   - Example
 
-disabled_rules: # rule identifiers to exclude from running
-  - trailing_whitespace
+function_body_length: 50

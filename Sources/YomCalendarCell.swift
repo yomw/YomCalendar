@@ -6,7 +6,6 @@
 //  Copyright © 2019 Yom. All rights reserved.
 //
 
-import SwiftDate
 import UIKit
 
 class YomCalendarCell: UICollectionViewCell {
@@ -15,19 +14,20 @@ class YomCalendarCell: UICollectionViewCell {
     private var label: UILabel = UILabel()
     private var selectView: UIView?
 
-    override init(frame: CGRect) {
+    var configuration = YomCalendar.Configuration.default
 
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
         label.frame = self.contentView.bounds
-        label.font = Font.defaultFont(withSize: 16)
+        label.font = configuration.fontConfiguration.dayFont
         label.textColor = UIColor.white
-        label.highlightedTextColor = Colors.purple
+        label.highlightedTextColor = configuration.colorConfiguration.selectionBackground
         label.textAlignment = .center
         self.contentView.addSubview(label)
         label.layer.shouldRasterize = true
 
-        self.backgroundColor = Colors.Background.base
+        self.backgroundColor = configuration.colorConfiguration.background
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -48,9 +48,13 @@ class YomCalendarCell: UICollectionViewCell {
                 return
             }
 
-            var textColor = enabled ? Colors.Text.base : Colors.Text.disabled
+            var textColor = enabled ? configuration.colorConfiguration.dayText
+                                    : configuration.colorConfiguration.disabledText
 
-            label.text = "\(self.date.day)"
+            var font = enabled ? configuration.fontConfiguration.dayFont
+                               : configuration.fontConfiguration.disabledFont
+
+            label.text = "\(self.date.days)"
 
             if selected || today {
                 var size = self.bounds.width < self.bounds.height ? self.bounds.width : self.bounds.height
@@ -58,14 +62,19 @@ class YomCalendarCell: UICollectionViewCell {
 
                 let subview = UIView(frame: CGRect(x: 0, y: 0, width: size, height: size))
                 if selected {
-                    subview.backgroundColor = Colors.purple
+                    subview.backgroundColor = configuration.colorConfiguration.selectionBackground
                     subview.layer.cornerRadius = size / 2
-                    textColor = Colors.Text.selected
-                } else {
+
+                    textColor = configuration.colorConfiguration.selectionText
+                    font = configuration.fontConfiguration.selectedFont
+                } else { // today
                     subview.backgroundColor = self.backgroundColor
                     subview.layer.cornerRadius = size / 2
-                    subview.layer.borderColor = Colors.purple.cgColor
+                    subview.layer.borderColor = configuration.colorConfiguration.selectionBackground.cgColor
                     subview.layer.borderWidth = 2
+
+                    textColor = configuration.colorConfiguration.todayText
+                    font = configuration.fontConfiguration.todayFont
                 }
                 subview.center = label.center
                 self.contentView.insertSubview(subview, belowSubview: label)
@@ -73,6 +82,7 @@ class YomCalendarCell: UICollectionViewCell {
             }
 
             label.textColor = textColor
+            label.font = font
         }
     }
 }

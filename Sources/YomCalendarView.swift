@@ -6,23 +6,22 @@
 //  Copyright © 2019 Yom. All rights reserved.
 //
 
-import SwiftDate
 import UIKit
-
-let currentRegion = Region(calendar: Calendars.gregorian,
-                           zone: TimeZone.autoupdatingCurrent,
-                           locale: Locale.autoupdatingCurrent)
 
 class YomCalendarView: UIControl {
     private let dateCellIdentifier = "dateCellId"
     private let monthHeaderIdentifier = "monthHeaderId"
 
-    private var fromDate: Date
-    private var toDate: Date
+    private var fromDate = Date().dateAtStartOf(.month)
+    private var toDate = Date() + 10.years
+
+    var configuration = YomCalendar.Configuration.default {
+        didSet { setupRange() }
+    }
 
     private lazy var collectionView: UICollectionView = { [unowned self] in
-        let collection = UICollectionView(frame: self.bounds, collectionViewLayout: self.collectionViewLayout)
-        collection.backgroundColor = Colors.Background.base
+        let collection = UICollectionView(frame: bounds, collectionViewLayout: collectionViewLayout)
+        collection.backgroundColor = configuration.colorConfiguration.background
         collection.dataSource = self
         collection.delegate = self
         collection.showsVerticalScrollIndicator = false
@@ -31,7 +30,6 @@ class YomCalendarView: UIControl {
         collection.register(YomCalendarMonthHeader.self,
                             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                             withReuseIdentifier: monthHeaderIdentifier)
-        collection.reloadData()
         return collection
         }()
 
@@ -48,32 +46,23 @@ class YomCalendarView: UIControl {
         return cvl
     }()
 
-    private var fixedNow: Date {
-        let todayString = Date().convertTo(region: currentRegion).toFormat("yyyy-MM-dd HH:mm:ss")
-        return todayString.toDate()?.date ?? Date()
-    }
-
-    override init(frame: CGRect) {
-        fromDate = Date().dateAtStartOf(.month)
-        toDate = fromDate + 24.years + 1.months
-        super.init(frame: frame)
-        selectedDate = fixedNow
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    private func setupRange() {
+        fromDate = configuration.minimumDate.dateAtStartOf(.month)
+        toDate = configuration.maximumDate + 1.months
+        collectionView.reloadData()
+        setDate(date: Date())
     }
 
     public var selectedDate: Date? {
         didSet {
             guard let selectedDate = selectedDate else { return }
-            guard toDate.date.isAfterDate(selectedDate, granularity: .day) else { return }
+            guard toDate.isAfterDate(selectedDate, granularity: .day) else { return }
             var paths: [IndexPath] = []
             if let old = oldValue {
                 let path = indexPath(from: old)
                 paths.append(path)
             }
-            if oldValue?.compare(toDate: selectedDate, granularity: .day) != .orderedSame {
+            if oldValue?.compare(to: selectedDate, granularity: .day) != .orderedSame {
                 let path = indexPath(from: selectedDate)
                 paths.append(path)
             }
@@ -82,7 +71,8 @@ class YomCalendarView: UIControl {
     }
 
     private func weekday(for date: Date) -> Int {
-        return (date.weekday - 2 + 7) % 7
+        let first = Calendar.current.firstWeekday
+        return (date.weekday - first + 7) % 7
     }
 
     public func setDate(date: Date) {
@@ -99,7 +89,7 @@ class YomCalendarView: UIControl {
     private func indexPath(from date: Date) -> IndexPath {
         let section = self.section(for: date)
         let first = date.dateAtStartOf(.month)
-        return IndexPath(item: date.day + weekday(for: first) - 1, section: section)
+        return IndexPath(item: date.days + weekday(for: first) - 1, section: section)
     }
 
     private func date(from indexPath: IndexPath) -> Date {
@@ -118,7 +108,7 @@ class YomCalendarView: UIControl {
 
     private func section(for date: Date) -> Int {
         guard date.isAfterDate(fromDate, granularity: .day) else { return 0 }
-        let duration = date.inDefaultRegion().componentsSince(fromDate.inDefaultRegion(), components: [.month, .year])
+        let duration = date.componentsSince(fromDate, components: [.month, .year])
         let years = duration.year ?? 0
         let months = duration.month ?? 0
         return years * 12 + months
@@ -133,26 +123,26 @@ extension YomCalendarView: UICollectionViewDataSource, UICollectionViewDelegate 
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let first = fromDate + section.months
-        return weekday(for: first) + first.monthDays
+        return weekday(for: first) + first.daysInMonth
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath)
         -> UICollectionViewCell {
         guard let cell: YomCalendarCell = collectionView.dequeueReusableCell(withReuseIdentifier: dateCellIdentifier,
-                                                                             for: indexPath)
-            as? YomCalendarCell
+                                                                             for: indexPath) as? YomCalendarCell
             else { fatalError("Could not find cell with identifier \(dateCellIdentifier)") }
 
         let cellDate = date(from: indexPath)
 
         let isEmptyCell = cellDate.isBeforeDate(fromDate + indexPath.section.months, granularity: .day)
-        let today = cellDate.compare(.isSameDay(fixedNow))
+        let today = cellDate.isToday()
 
         let enabled = !isEmptyCell
-            && cellDate.isAfterDate(fixedNow, orEqual: true, granularity: .day)
-            && cellDate.isBeforeDate(fixedNow + 24.years, orEqual: true, granularity: .day)
-        let selected = selectedDate?.compare(toDate: cellDate, granularity: .day) == .orderedSame
+            && cellDate.isAfterDate(configuration.minimumDate, orEqual: true, granularity: .day)
+            && cellDate.isBeforeDate(configuration.maximumDate, orEqual: true, granularity: .day)
+        let selected = selectedDate?.compare(to: cellDate, granularity: .day) == .orderedSame
 
+        cell.configuration = configuration
         cell.update(date: cellDate, enabled: enabled, out: isEmptyCell, today: today, selected: selected)
 
         return cell
@@ -170,6 +160,7 @@ extension YomCalendarView: UICollectionViewDataSource, UICollectionViewDelegate 
                                                             for: indexPath) as? YomCalendarMonthHeader
             else { fatalError("Could not find cell with identifier \(monthHeaderIdentifier)") }
 
+        header.configuration = configuration
         header.textLabel.text = (fromDate + indexPath.section.months).toFormat("LLLL yyyy")
 
         return header
@@ -187,8 +178,9 @@ extension YomCalendarView: UICollectionViewDataSource, UICollectionViewDelegate 
             return
         }
 
-        let now = DateInRegion(Date(), region: currentRegion)
-        let minutes = now.hour * 60 + now.minute
+//        let now = DateInRegion(Date(), region: currentRegion)
+        let now = Date()
+        let minutes = now.hours * 60 + now.minutes
         selectedDate = cell.date + minutes.minutes
         sendActions(for: .valueChanged)
     }
