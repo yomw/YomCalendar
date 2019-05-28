@@ -1,20 +1,16 @@
 PODS:
   - Reveal-SDK (21)
-  - SwiftDate (6.0.1)
 
 DEPENDENCIES:
   - Reveal-SDK
-  - SwiftDate
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Reveal-SDK
-    - SwiftDate
 
 SPEC CHECKSUMS:
   Reveal-SDK: 3523e0eb7c562811c51bb71da6e523a6373702c8
-  SwiftDate: 2b3ef6b8fc30c22391033d1acad5622a51660016
 
-PODFILE CHECKSUM: 2b8b32e68a98922f568e7fcac57a0e5c8e54788f
+PODFILE CHECKSUM: e45644e4be80091f1e6c4ef27bf744c568680310
 
 COCOAPODS: 1.6.1
