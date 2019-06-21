@@ -10,16 +10,16 @@ import UIKit
 
 class YomCalendarMonthHeader: UICollectionReusableView {
     var textLabel = UILabel()
-    var configuration = YomCalendar.Configuration.default
+    var configuration = Configuration.default
 
-    private static var days: [String] {
+    private var days: [String] {
         // `weekdaySymbols` seems they always return `Sun ... Sat` array regardless `.firstWeekday` property
         // of the calendar. You have to rotate it manually.
-        var calendar = Calendar.current
-        calendar.locale = Locale.preferredLocale
+        var calendar = configuration.staticConfiguration.calendar
+        calendar.locale = configuration.staticConfiguration.locale
         var days = calendar.veryShortStandaloneWeekdaySymbols
 
-        var shifts = Calendar.current.firstWeekday
+        var shifts = configuration.staticConfiguration.calendar.firstWeekday
         while shifts > 1 {
             shifts -= 1
             let sunday = days.removeFirst()
@@ -50,7 +50,7 @@ class YomCalendarMonthHeader: UICollectionReusableView {
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
-        for day in YomCalendarMonthHeader.days {
+        for day in days {
             let label = UILabel()
             label.font = configuration.fontConfiguration.monthDayFont
             label.textColor = configuration.colorConfiguration.monthText

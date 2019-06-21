@@ -9,7 +9,7 @@
 import UIKit
 
 class YomCalendarCell: UICollectionViewCell {
-    private(set) var date = Date()
+    private(set) var date = CalendarDate()
     private(set) var enabled: Bool = true
     private var label: UILabel = UILabel()
     private var selectView: UIView?
@@ -34,7 +34,7 @@ class YomCalendarCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func update (date: Date, enabled: Bool, out: Bool, today: Bool, selected: Bool) {
+    func update (date: CalendarDate, enabled: Bool, out: Bool, today: Bool, selected: Bool) {
         self.date = date
         self.enabled = enabled
 
@@ -54,7 +54,7 @@ class YomCalendarCell: UICollectionViewCell {
             var font = enabled ? configuration.fontConfiguration.dayFont
                                : configuration.fontConfiguration.disabledFont
 
-            label.text = "\(self.date.days)"
+            label.text = date.toFormat("dd")
 
             if selected || today {
                 var size = self.bounds.width < self.bounds.height ? self.bounds.width : self.bounds.height

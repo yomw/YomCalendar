@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		209099AC6625FB65141347CB /* Pods_YomCalendar_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEEE74D817ED33C7084CC277 /* Pods_YomCalendar_iOS.framework */; };
 		23FE84086215D85529E8325F /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 544577813C0FADEEB60BF25D /* Pods_Example.framework */; };
-		3D9C42A222745900000A6585 /* YomCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9C42A122745900000A6585 /* YomCalendar.swift */; };
+		3D9C42A222745900000A6585 /* YomCalendarPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9C42A122745900000A6585 /* YomCalendarPicker.swift */; };
 		3D9C42F62274604A000A6585 /* YomCalendar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D9C429022745894000A6585 /* YomCalendar.framework */; };
 		3D9C42FC22746078000A6585 /* YomCalendarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9C42D722745CDE000A6585 /* YomCalendarTests.swift */; };
 		3D9C43242274629B000A6585 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9C43232274629B000A6585 /* AppDelegate.swift */; };
@@ -20,6 +20,7 @@
 		3D9C433522746323000A6585 /* YomCalendar.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D9C429022745894000A6585 /* YomCalendar.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A08A6D43B059FA9DF2E4CAA /* Pods_YomCalendar_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F39AFAC2ACEF75629195CCFA /* Pods_YomCalendar_iOSTests.framework */; };
 		E932B500229D638F00A7B566 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E932B4FF229D638F00A7B566 /* Date+Extensions.swift */; };
+		E933C8C122BCCE7E00E81B0B /* YomCalendarPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E933C8C022BCCE7E00E81B0B /* YomCalendarPickerViewController.swift */; };
 		E9DBDB46228F0E55008C0117 /* YomCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DBDB45228F0E55008C0117 /* YomCalendarView.swift */; };
 		E9DBDBD4228F0F64008C0117 /* YomCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DBDBD2228F0F64008C0117 /* YomCalendarCell.swift */; };
 		E9DBDBD5228F0F64008C0117 /* YomCalendarMonthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DBDBD3228F0F64008C0117 /* YomCalendarMonthHeader.swift */; };
@@ -65,7 +66,7 @@
 		3D9C429022745894000A6585 /* YomCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = YomCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D9C429C227458E8000A6585 /* YomCalendar.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = YomCalendar.plist; sourceTree = "<group>"; };
 		3D9C429D227458E8000A6585 /* YomCalendarTests.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = YomCalendarTests.plist; sourceTree = "<group>"; };
-		3D9C42A122745900000A6585 /* YomCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomCalendar.swift; sourceTree = "<group>"; };
+		3D9C42A122745900000A6585 /* YomCalendarPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomCalendarPicker.swift; sourceTree = "<group>"; };
 		3D9C42D222745B48000A6585 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		3D9C42D322745B48000A6585 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		3D9C42D422745B48000A6585 /* YomCalendar.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = YomCalendar.podspec; sourceTree = SOURCE_ROOT; };
@@ -88,6 +89,7 @@
 		B0022138ED56F7324E020488 /* Pods-YomCalendar-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YomCalendar-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-YomCalendar-iOSTests/Pods-YomCalendar-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		E7E3D85CB2495DA885B748B4 /* Pods-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.debug.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.debug.xcconfig"; sourceTree = "<group>"; };
 		E932B4FF229D638F00A7B566 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		E933C8C022BCCE7E00E81B0B /* YomCalendarPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomCalendarPickerViewController.swift; sourceTree = "<group>"; };
 		E9DBDB45228F0E55008C0117 /* YomCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomCalendarView.swift; sourceTree = "<group>"; };
 		E9DBDBD2228F0F64008C0117 /* YomCalendarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YomCalendarCell.swift; sourceTree = "<group>"; };
 		E9DBDBD3228F0F64008C0117 /* YomCalendarMonthHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YomCalendarMonthHeader.swift; sourceTree = "<group>"; };
@@ -175,7 +177,8 @@
 			isa = PBXGroup;
 			children = (
 				E9DBDBD822929F33008C0117 /* Helpers */,
-				3D9C42A122745900000A6585 /* YomCalendar.swift */,
+				3D9C42A122745900000A6585 /* YomCalendarPicker.swift */,
+				E933C8C022BCCE7E00E81B0B /* YomCalendarPickerViewController.swift */,
 				E9DBDB45228F0E55008C0117 /* YomCalendarView.swift */,
 				E9DBDBD3228F0F64008C0117 /* YomCalendarMonthHeader.swift */,
 				E9DBDBD2228F0F64008C0117 /* YomCalendarCell.swift */,
@@ -503,11 +506,12 @@
 			files = (
 				E9DBDBD7228F10A5008C0117 /* YomCalendarHourPicker.swift in Sources */,
 				E932B500229D638F00A7B566 /* Date+Extensions.swift in Sources */,
+				E933C8C122BCCE7E00E81B0B /* YomCalendarPickerViewController.swift in Sources */,
 				E9DBDBD5228F0F64008C0117 /* YomCalendarMonthHeader.swift in Sources */,
 				E9DBDBD4228F0F64008C0117 /* YomCalendarCell.swift in Sources */,
 				E9DBDBDE2292A018008C0117 /* UIColor+Extensions.swift in Sources */,
 				E9DBDB46228F0E55008C0117 /* YomCalendarView.swift in Sources */,
-				3D9C42A222745900000A6585 /* YomCalendar.swift in Sources */,
+				3D9C42A222745900000A6585 /* YomCalendarPicker.swift in Sources */,
 				E9DBDBDA22929F40008C0117 /* Layout+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

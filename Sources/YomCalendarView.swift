@@ -12,8 +12,8 @@ class YomCalendarView: UIControl {
     private let dateCellIdentifier = "dateCellId"
     private let monthHeaderIdentifier = "monthHeaderId"
 
-    private var fromDate = Date().dateAtStartOf(.month)
-    private var toDate = Date() + 10.years
+    private var fromDate = CalendarDate().dateAtStartOf(.month)
+    private var toDate = CalendarDate() + 10.years
 
     var configuration = YomCalendar.Configuration.default {
         didSet { setupRange() }
@@ -46,14 +46,16 @@ class YomCalendarView: UIControl {
         return cvl
     }()
 
+    func reloadData() {
+        collectionView.reloadData()
+    }
+
     private func setupRange() {
         fromDate = configuration.minimumDate.dateAtStartOf(.month)
         toDate = configuration.maximumDate + 1.months
-        collectionView.reloadData()
-        setDate(date: Date())
     }
 
-    public var selectedDate: Date? {
+    public var selectedDate: CalendarDate? {
         didSet {
             guard let selectedDate = selectedDate else { return }
             guard toDate.isAfterDate(selectedDate, granularity: .day) else { return }
@@ -70,12 +72,12 @@ class YomCalendarView: UIControl {
         }
     }
 
-    private func weekday(for date: Date) -> Int {
-        let first = Calendar.current.firstWeekday
+    private func weekday(for date: CalendarDate) -> Int {
+        let first = configuration.staticConfiguration.calendar.firstWeekday
         return (date.weekday - first + 7) % 7
     }
 
-    public func setDate(date: Date) {
+    public func setDate(date: CalendarDate, animated: Bool) {
         selectedDate = date
 
         var indexPath = self.indexPath(from: date)
@@ -83,16 +85,16 @@ class YomCalendarView: UIControl {
             indexPath.section = self.collectionView.numberOfSections - 1
         }
 
-        self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+        self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: animated)
     }
 
-    private func indexPath(from date: Date) -> IndexPath {
+    private func indexPath(from date: CalendarDate) -> IndexPath {
         let section = self.section(for: date)
         let first = date.dateAtStartOf(.month)
         return IndexPath(item: date.days + weekday(for: first) - 1, section: section)
     }
 
-    private func date(from indexPath: IndexPath) -> Date {
+    private func date(from indexPath: IndexPath) -> CalendarDate {
         let first = fromDate + indexPath.section.months
         return first + (indexPath.row - weekday(for: first)).days
     }
@@ -106,9 +108,9 @@ class YomCalendarView: UIControl {
         }
     }
 
-    private func section(for date: Date) -> Int {
+    private func section(for date: CalendarDate) -> Int {
         guard date.isAfterDate(fromDate, granularity: .day) else { return 0 }
-        let duration = date.componentsSince(fromDate, components: [.month, .year])
+        let duration = date.componentsSince(fromDate.date, components: [.month, .year])
         let years = duration.year ?? 0
         let months = duration.month ?? 0
         return years * 12 + months
@@ -179,7 +181,7 @@ extension YomCalendarView: UICollectionViewDataSource, UICollectionViewDelegate 
         }
 
 //        let now = DateInRegion(Date(), region: currentRegion)
-        let now = Date()
+        let now = CalendarDate(config: configuration.staticConfiguration)
         let minutes = now.hours * 60 + now.minutes
         selectedDate = cell.date + minutes.minutes
         sendActions(for: .valueChanged)

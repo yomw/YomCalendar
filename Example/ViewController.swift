@@ -13,17 +13,24 @@ import YomCalendar
 
 /// The ViewController
 class ViewController: UIViewController {
-    let calendar = YomCalendar() {
-        $0.minimumDate = Date()
-        $0.maximumDate = Date(timeIntervalSinceNow: 60 * 60 * 24 * 50)
-    }
+    let calendar = YomCalendarPicker()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.addSubview(calendar, withInsets: .zero)
 
-        view.addSubview(calendar.view, withInsets: .zero)
-        calendar.didSelectDate = {
-            print($0)
-        }
+        calendar.minimumDate = Date()
+        calendar.maximumDate = Date(timeIntervalSinceNow: 60 * 60 * 24 * 50)
+
+//        calendar.calendar = Calendar(identifier: .islamic)
+        calendar.locale = Locale(identifier: "en")
+        calendar.mode = .dateAndTime
+        calendar.setDate(Date(timeIntervalSinceNow: 60 * 60 * 24 * 37), animated: false)
+
+        calendar.addTarget(self, action: #selector(valueChanged(sender:)), for: .valueChanged)
+    }
+
+    @objc func valueChanged(sender: YomCalendarPicker) {
+        print(sender.date)
     }
 }

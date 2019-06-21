@@ -11,7 +11,7 @@ import UIKit
 class YomCalendarHourPicker: UIControl {
     static let dateHeight: CGFloat = 60
 
-    var selectedDate = Date() {
+    var selectedDate: CalendarDate {
         didSet { setDateDisplayed(date: selectedDate) }
     }
     var sendDate: ((Date) -> Void)?
@@ -27,12 +27,12 @@ class YomCalendarHourPicker: UIControl {
     private var deployedDate: NSLayoutConstraint!
     private var deployedPicker: NSLayoutConstraint!
     private var datePicker: NSLayoutConstraint!
-    private var mode: Mode { didSet { updateMode() } }
+    private var mode: Mode = .folded
 
     var configuration = YomCalendar.Configuration.default
 
     init() {
-        mode = .folded
+        selectedDate = CalendarDate(config: configuration.staticConfiguration)
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -41,10 +41,9 @@ class YomCalendarHourPicker: UIControl {
         buildDate()
         buildPicker()
 
-        updateMode(animated: false)
+        updateMode(.folded, animated: false)
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        selectedDate = Date()
 //        selectedDate = DateInRegion(formatter.string(from: Date()))!.date
     }
 
@@ -57,7 +56,8 @@ class YomCalendarHourPicker: UIControl {
         tweakPicker(picker)
     }
 
-    private func updateMode(animated: Bool = true) {
+    private func updateMode(_ mode: Mode, animated: Bool = true) {
+        self.mode = mode
         let activate, deactivate: [NSLayoutConstraint]
         switch mode {
         case .folded:
@@ -82,25 +82,26 @@ class YomCalendarHourPicker: UIControl {
         }
     }
 
-    func unfoldDate() {
-        mode = .date
+    func unfoldDate(animated: Bool) {
+        updateMode(.date, animated: animated)
     }
 
     @discardableResult
     override func endEditing(_ force: Bool) -> Bool {
         if mode == .picker {
-            mode = .date
+            updateMode(.date, animated: true)
         }
         return super.endEditing(force)
     }
 
     @objc func togglePicker() {
-        mode = mode == .picker ? .date : .picker
+        guard configuration.mode == .dateAndTime else { return }
+        updateMode(mode == .picker ? .date : .picker, animated: true)
     }
 
-    private func capDate(_ date: Date) -> Date {
-        if date < configuration.maximumDate {
-            if date > configuration.minimumDate {
+    private func capDate(_ date: CalendarDate) -> CalendarDate {
+        if date.date < configuration.maximumDate.date {
+            if date.date > configuration.minimumDate.date {
                 return date
             }
             return configuration.minimumDate
@@ -221,7 +222,7 @@ extension YomCalendarHourPicker {
 }
 
 extension YomCalendarHourPicker {
-    func setPickerTime(date: Date, animated: Bool = true) {
+    func setPickerTime(date: CalendarDate, animated: Bool = true) {
         let hour = date.hours
         let minute = date.minutes
 
@@ -230,16 +231,25 @@ extension YomCalendarHourPicker {
         picker.reloadAllComponents() // color in selection
     }
 
-    func setDateDisplayed(date: Date) {
+    func setDateDisplayed(date: CalendarDate) {
         let formatter = DateFormatter()
-        formatter.locale = Locale.preferredLocale
+        formatter.calendar = date.calendar
+        formatter.locale = date.locale
+
         formatter.dateStyle = .long
         formatter.timeStyle = .none
-        let day = formatter.string(from: date)
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        let time = formatter.string(from: date)
-        let text = "\(day) \(time)"// L10n.Calendar.resume(day, time)
+        let day = formatter.string(from: date.date)
+
+        let time: String
+        if configuration.mode == .dateAndTime {
+            formatter.dateStyle = .none
+            formatter.timeStyle = .short
+            time = formatter.string(from: date.date)
+        } else {
+            time = ""
+        }
+
+        let text = "\(day) \(time)"
         let attributedString = NSMutableAttributedString(string: text)
         let range = (text as NSString).range(of: time)
         attributedString.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
@@ -248,7 +258,7 @@ extension YomCalendarHourPicker {
     }
 
     @objc func send() {
-        sendDate?(selectedDate)
+        sendDate?(selectedDate.date)
     }
 }
 
