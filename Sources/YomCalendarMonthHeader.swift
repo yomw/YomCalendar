@@ -15,11 +15,11 @@ class YomCalendarMonthHeader: UICollectionReusableView {
     private var days: [String] {
         // `weekdaySymbols` seems they always return `Sun ... Sat` array regardless `.firstWeekday` property
         // of the calendar. You have to rotate it manually.
-        var calendar = configuration.staticConfiguration.calendar
-        calendar.locale = configuration.staticConfiguration.locale
+        var calendar = configuration.localeConfiguration.calendar
+        calendar.locale = configuration.localeConfiguration.locale
         var days = calendar.veryShortStandaloneWeekdaySymbols
 
-        var shifts = configuration.staticConfiguration.calendar.firstWeekday
+        var shifts = configuration.localeConfiguration.calendar.firstWeekday
         while shifts > 1 {
             shifts -= 1
             let sunday = days.removeFirst()

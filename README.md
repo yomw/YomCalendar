@@ -52,7 +52,7 @@ pod 'YomCalendar'
 To integrate YomCalendar into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "Guillaume Bellue/YomCalendar"
+github "yomw/YomCalendar"
 ```
 
 Run `carthage update` to build the framework and drag the built `YomCalendar.framework` into your Xcode project. 

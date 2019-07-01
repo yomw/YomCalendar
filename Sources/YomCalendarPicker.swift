@@ -11,7 +11,7 @@
 import UIKit
 
 public class YomCalendarPicker: UIControl {
-    public enum CalendarMode : Int {
+    public enum CalendarMode: Int {
         case date, dateAndTime
     }
 
@@ -19,44 +19,35 @@ public class YomCalendarPicker: UIControl {
 
     public var calendar: Calendar! = Calendar.autoupdatingCurrent {
         didSet {
-            configuration.staticConfiguration.calendar = calendar
-            configuration.minimumDate.update(configuration: configuration.staticConfiguration)
-            configuration.maximumDate.update(configuration: configuration.staticConfiguration)
+            configuration.localeConfiguration.calendar = calendar
             calendarPicker.reloadData()
         }
     }
     public var date: Date = Date()
     public var locale: Locale? {
         didSet {
-            configuration.staticConfiguration.locale = locale
-            configuration.minimumDate.update(configuration: configuration.staticConfiguration)
-            configuration.maximumDate.update(configuration: configuration.staticConfiguration)
+            configuration.localeConfiguration.locale = locale
             calendarPicker.reloadData()
         }
     }
 //    public var timeZone: TimeZone? { // TODO
 //        didSet {
-//            configuration.staticConfiguration.timeZone = timeZone
-//            configuration.minimumDate.update(configuration: configuration.staticConfiguration)
-//            configuration.maximumDate.update(configuration: configuration.staticConfiguration)
+//            configuration.localeConfiguration.timeZone = timeZone
 //            calendarPicker.reloadData()
 //        }
 //    }
     public var minimumDate = Date() {
-        didSet {
-            configuration.minimumDate = CalendarDate(date: minimumDate, calendar: calendar, locale: locale)
-        }
+        didSet { configuration.minimumDate = minimumDate }
     }
     public var maximumDate = Date() {
-        didSet {
-            configuration.maximumDate = CalendarDate(date: maximumDate, calendar: calendar, locale: locale)
-        }
+        didSet { configuration.maximumDate = maximumDate }
     }
 
     public func setDate(_ date: Date, animated: Bool) {
         self.date = date
-        calendarPicker.setDate(CalendarDate(date: date, config: configuration.staticConfiguration), animated: animated)
+        calendarPicker.setDate(date, animated: animated)
     }
+
     public var mode: CalendarMode = .dateAndTime {
         didSet {
             configuration.mode = mode
@@ -78,10 +69,6 @@ extension YomCalendarPicker { // private
     private func loadView() {
         calendarPicker.configuration = self.configuration
         calendarPicker.didSelectDate = didSelectDate
-
-        configuration.minimumDate.update(configuration: configuration.staticConfiguration)
-        configuration.maximumDate.update(configuration: configuration.staticConfiguration)
-
         addSubview(calendarPicker.view, withInsets: .zero)
     }
 
@@ -95,10 +82,10 @@ public class Configuration {
     public var colorConfiguration = ColorConfiguration.default
     public var fontConfiguration = FontConfiguration.default
 
-    var staticConfiguration = StaticConfiguration.default
+    var localeConfiguration = LocaleConfiguration.default
 
-    var minimumDate = CalendarDate()
-    var maximumDate = CalendarDate() + 10.years
+    var minimumDate = Date()
+    var maximumDate = Date().adding(10.years, calendar: Calendar.autoupdatingCurrent)
     var mode = YomCalendarPicker.CalendarMode.dateAndTime
 
     public static var `default` = Configuration()
@@ -136,12 +123,10 @@ public class FontConfiguration {
     public var pickerFont = UIFont.systemFont(ofSize: 20)
 }
 
-class StaticConfiguration {
-    static var `default` = StaticConfiguration()
+class LocaleConfiguration {
+    static var `default` = LocaleConfiguration()
 
-    var calendar: Calendar = Calendar.autoupdatingCurrent {
-        didSet { defaultCalendar = calendar }
-    }
+    var calendar: Calendar = Calendar.autoupdatingCurrent
 
     private var privateLocale: Locale?
     var locale: Locale? {

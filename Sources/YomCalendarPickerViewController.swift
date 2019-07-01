@@ -25,9 +25,9 @@ class YomCalendarPickerViewController: UIViewController {
         buildHourView()
     }
 
-    func setDate(_ date: CalendarDate, animated: Bool) {
+    func setDate(_ date: Date, animated: Bool) {
         calView?.setDate(date: date, animated: animated)
-        calendarDateUpdated(animated: animated)
+        dateUpdated(animated: animated)
     }
 
     func reloadData() {
@@ -46,7 +46,7 @@ class YomCalendarPickerViewController: UIViewController {
             calView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             calView.topAnchor.constraint(equalTo: view.topAnchor)])
 
-        calView.addTarget(self, action: #selector(calendarDateUpdated), for: .valueChanged)
+        calView.addTarget(self, action: #selector(dateUpdated), for: .valueChanged)
         calView.addTarget(self, action: #selector(calendarEndEditing), for: .editingDidEnd)
 
         calView.configuration = configuration
@@ -67,7 +67,7 @@ class YomCalendarPickerViewController: UIViewController {
         hourView.configuration = configuration
     }
 
-    @objc private func calendarDateUpdated(animated: Bool = true) {
+    @objc private func dateUpdated(animated: Bool = true) {
         guard let date = calView?.selectedDate else { return }
         hourView.selectedDate = date
         hourView.unfoldDate(animated: animated)

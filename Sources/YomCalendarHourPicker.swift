@@ -11,7 +11,7 @@ import UIKit
 class YomCalendarHourPicker: UIControl {
     static let dateHeight: CGFloat = 60
 
-    var selectedDate: CalendarDate {
+    var selectedDate: Date {
         didSet { setDateDisplayed(date: selectedDate) }
     }
     var sendDate: ((Date) -> Void)?
@@ -32,7 +32,7 @@ class YomCalendarHourPicker: UIControl {
     var configuration = YomCalendar.Configuration.default
 
     init() {
-        selectedDate = CalendarDate(config: configuration.staticConfiguration)
+        selectedDate = Date()
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -99,9 +99,9 @@ class YomCalendarHourPicker: UIControl {
         updateMode(mode == .picker ? .date : .picker, animated: true)
     }
 
-    private func capDate(_ date: CalendarDate) -> CalendarDate {
-        if date.date < configuration.maximumDate.date {
-            if date.date > configuration.minimumDate.date {
+    private func capDate(_ date: Date) -> Date {
+        if date < configuration.maximumDate {
+            if date > configuration.minimumDate {
                 return date
             }
             return configuration.minimumDate
@@ -222,29 +222,29 @@ extension YomCalendarHourPicker {
 }
 
 extension YomCalendarHourPicker {
-    func setPickerTime(date: CalendarDate, animated: Bool = true) {
-        let hour = date.hours
-        let minute = date.minutes
+    func setPickerTime(date: Date, animated: Bool = true) {
+        let hour = date.hours(calendar: configuration.localeConfiguration.calendar)
+        let minute = date.minutes(calendar: configuration.localeConfiguration.calendar)
 
         picker.selectRow(hour, inComponent: 0, animated: animated)
         picker.selectRow(minute, inComponent: 1, animated: animated)
         picker.reloadAllComponents() // color in selection
     }
 
-    func setDateDisplayed(date: CalendarDate) {
+    func setDateDisplayed(date: Date) {
         let formatter = DateFormatter()
-        formatter.calendar = date.calendar
-        formatter.locale = date.locale
+        formatter.calendar = configuration.localeConfiguration.calendar
+        formatter.locale = configuration.localeConfiguration.locale
 
         formatter.dateStyle = .long
         formatter.timeStyle = .none
-        let day = formatter.string(from: date.date)
+        let day = formatter.string(from: date)
 
         let time: String
         if configuration.mode == .dateAndTime {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
-            time = formatter.string(from: date.date)
+            time = formatter.string(from: date)
         } else {
             time = ""
         }
@@ -258,7 +258,7 @@ extension YomCalendarHourPicker {
     }
 
     @objc func send() {
-        sendDate?(selectedDate.date)
+        sendDate?(selectedDate)
     }
 }
 
@@ -299,8 +299,10 @@ extension YomCalendarHourPicker: UIPickerViewDelegate, UIPickerViewDataSource {
         let hour = pickerView.selectedRow(inComponent: 0)
         let minute = pickerView.selectedRow(inComponent: 1)
 
-        let truncated = selectedDate.truncated(from: .hour)!
-        let date = truncated + hour.hours + minute.minutes
+        let truncated = selectedDate.truncated(from: .hour, calendar: configuration.localeConfiguration.calendar)!
+        let date = truncated
+            .adding(hour.hours, calendar: configuration.localeConfiguration.calendar)
+            .adding(minute.minutes, calendar: configuration.localeConfiguration.calendar)
 
         selectedDate = capDate(date)
         setDateDisplayed(date: selectedDate)
