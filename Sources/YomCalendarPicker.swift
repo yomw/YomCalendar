@@ -59,8 +59,13 @@ public class YomCalendarPicker: UIControl {
         didSet { calendarPicker.configuration = configuration }
     }
 
-    public override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
+//    public override func willMove(toSuperview newSuperview: UIView?) {
+//        super.willMove(toSuperview: newSuperview)
+//        loadView()
+//    }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
         loadView()
     }
 }
@@ -70,17 +75,29 @@ extension YomCalendarPicker { // private
         calendarPicker.configuration = self.configuration
         calendarPicker.didSelectDate = didSelectDate
         addSubview(calendarPicker.view, withInsets: .zero)
+        calendarPicker.setDate(date, animated: false)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(updatedConfiguration),
+                                               name: .init(rawValue: "ConfigurationChanged"), object: nil)
     }
 
     private func didSelectDate(_ date: Date) {
         self.date = date
         sendActions(for: .valueChanged)
     }
+
+    @objc private func updatedConfiguration() {
+        calendarPicker.configuration = configuration
+    }
 }
 
 public class Configuration {
-    public var colorConfiguration = ColorConfiguration.default
-    public var fontConfiguration = FontConfiguration.default
+    public var colorConfiguration = ColorConfiguration.light {
+        didSet { NotificationCenter.default.post(name: .init("ConfigurationChanged"), object: nil) }
+    }
+    public var fontConfiguration = FontConfiguration.default {
+        didSet { NotificationCenter.default.post(name: .init("ConfigurationChanged"), object: nil) }
+    }
 
     var localeConfiguration = LocaleConfiguration.default
 
@@ -92,7 +109,21 @@ public class Configuration {
 }
 
 public class ColorConfiguration {
-    public static var `default` = ColorConfiguration()
+    public static var light = ColorConfiguration()
+    public static var dark: ColorConfiguration = {
+        let config = ColorConfiguration()
+        config.background = UIColor(hexString: "222222")
+        config.dateTimeBackground = UIColor(hexString: "222222")
+
+        config.selectionBackground = UIColor(hexString: "F05138")
+        config.todayText = UIColor(hexString: "F05138")
+
+        config.dayText = UIColor(hexString: "DDDDDD")
+        config.dateTimeText = UIColor(hexString: "DDDDDD")
+        config.dateTimeLines = UIColor.darkGray
+        return config
+    }()
+
     public var background = UIColor(hexString: "FAFAFA")
 
     public var selectionBackground = UIColor.red

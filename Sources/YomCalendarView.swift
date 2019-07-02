@@ -38,8 +38,8 @@ class YomCalendarView: UIControl {
         cvl.headerReferenceSize = CGSize(width: bounds.width, height: 104)
 
         let spacing: CGFloat = 2
-        let cellPerLine: CGFloat = 7
-        let width = (bounds.width - spacing * (cellPerLine - 1)) / cellPerLine
+        let cellsPerLine: CGFloat = 7
+        let width = (bounds.width - spacing * (cellsPerLine - 1)) / cellsPerLine
         cvl.itemSize = CGSize(width: width, height: 44)
         cvl.minimumLineSpacing = spacing
         cvl.minimumInteritemSpacing = spacing
@@ -47,7 +47,12 @@ class YomCalendarView: UIControl {
     }()
 
     func reloadData() {
-        collectionView.reloadData()
+        reloadConfiguration()
+        self.collectionView.reloadData()
+    }
+
+    func reloadConfiguration() {
+        collectionView.backgroundColor = configuration.colorConfiguration.background
     }
 
     private func setupRange() {

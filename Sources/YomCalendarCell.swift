@@ -22,12 +22,9 @@ class YomCalendarCell: UICollectionViewCell {
         label.frame = self.contentView.bounds
         label.font = configuration.fontConfiguration.dayFont
         label.textColor = UIColor.white
-        label.highlightedTextColor = configuration.colorConfiguration.selectionBackground
         label.textAlignment = .center
         self.contentView.addSubview(label)
         label.layer.shouldRasterize = true
-
-        self.backgroundColor = configuration.colorConfiguration.background
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -38,9 +35,12 @@ class YomCalendarCell: UICollectionViewCell {
         self.date = date
         self.enabled = enabled
 
+        self.backgroundColor = configuration.colorConfiguration.background
+
         UIView.performWithoutAnimation {
             selectView?.removeFromSuperview()
             selectView = nil
+            label.highlightedTextColor = configuration.colorConfiguration.selectionBackground
             label.isHighlighted = today && !selected
 
             label.isHidden = out

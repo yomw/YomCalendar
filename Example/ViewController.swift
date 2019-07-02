@@ -17,6 +17,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.addSubview(picker, withInsets: .zero)
 
         picker.minimumDate = Date()
@@ -30,10 +31,13 @@ class ViewController: UIViewController {
         picker.mode = .dateAndTime
         picker.setDate(Date(), animated: false)
 
+        picker.configuration.colorConfiguration = ColorConfiguration.light
+
         picker.addTarget(self, action: #selector(valueChanged(sender:)), for: .valueChanged)
     }
 
     @objc func valueChanged(sender: YomCalendarPicker) {
         print(sender.date)
+        picker.configuration.colorConfiguration = ColorConfiguration.dark
     }
 }

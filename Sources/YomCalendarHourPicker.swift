@@ -29,7 +29,12 @@ class YomCalendarHourPicker: UIControl {
     private var datePicker: NSLayoutConstraint!
     private var mode: Mode = .folded
 
-    var configuration = YomCalendar.Configuration.default
+    private var dateView: UIView?
+    private var pickerView: UIView?
+
+    var configuration = YomCalendar.Configuration.default {
+        didSet { rebuildView() }
+    }
 
     init() {
         selectedDate = Date()
@@ -37,14 +42,6 @@ class YomCalendarHourPicker: UIControl {
 
         translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = true
-
-        buildDate()
-        buildPicker()
-
-        updateMode(.folded, animated: false)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-//        selectedDate = DateInRegion(formatter.string(from: Date()))!.date
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -53,7 +50,18 @@ class YomCalendarHourPicker: UIControl {
 
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
+
+        updateMode(.folded, animated: false)
+    }
+
+    private func rebuildView() {
+        dateView?.removeFromSuperview()
+        pickerView?.removeFromSuperview()
+
+        buildDate()
+        buildPicker()
         tweakPicker(picker)
+        updateMode(mode, animated: false)
     }
 
     private func updateMode(_ mode: Mode, animated: Bool = true) {
@@ -139,6 +147,7 @@ extension YomCalendarHourPicker {
         container.addSubview(toggler, withInsets: .zero)
         container.addSubview(validate)
         addSubview(container)
+        dateView = container
 
         NSLayoutConstraint.activate([
             topLine.leadingAnchor.constraint(equalTo: container.leadingAnchor),
@@ -184,6 +193,8 @@ extension YomCalendarHourPicker {
         container.addSubview(topLine)
         container.addSubview(picker)
         addSubview(container)
+        pickerView = container
+
         NSLayoutConstraint.activate([
             topLine.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             topLine.topAnchor.constraint(equalTo: container.topAnchor),

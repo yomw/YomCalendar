@@ -12,7 +12,9 @@ class YomCalendarPickerViewController: UIViewController {
     private var hourView = YomCalendarHourPicker()
     private var calView: YomCalendarView?
     private var currentDate: DateComponents?
-    var configuration = Configuration.default
+    var configuration = Configuration.default {
+        didSet { reloadData() }
+    }
 
     var didSelectDate: ((Date) -> Void)?
 
