@@ -85,7 +85,7 @@ public class Configuration {
     var localeConfiguration = LocaleConfiguration.default
 
     var minimumDate = Date()
-    var maximumDate = Date().adding(10.years, calendar: Calendar.autoupdatingCurrent)
+    var maximumDate = Date().adding(10.years, calendar: Calendar.current)
     var mode = YomCalendarPicker.CalendarMode.dateAndTime
 
     public static var `default` = Configuration()

@@ -128,7 +128,7 @@ extension Date {
     func substracting(_ components: DateComponents, calendar: Calendar) -> Date {
         var inversed = DateComponents()
         Calendar.Component.all.forEach {
-            if let value = components.value(for: $0) {
+            if let value = components.value(for: $0), value != NSDateComponentUndefined {
                 inversed.setValue(-value, for: $0)
             }
         }
